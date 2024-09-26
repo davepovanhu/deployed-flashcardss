@@ -1,7 +1,9 @@
 fastapi
 uvicorn[standard]
+pydantic
 python-dotenv
 google-cloud-storage
 google-generativeai
 aiofiles
 python-multipart
+
