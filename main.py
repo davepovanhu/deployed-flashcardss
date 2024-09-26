@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Form
+from fastapi import FastAPI
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
 import os
@@ -26,13 +27,19 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
+# Define the input model for the summary
+class SummaryInput(BaseModel):
+    summary: str
+
 # Flashcards generation endpoint
 @app.post("/generate-flashcards/")
-async def generate_flashcards(summary: str = Form(...)):
+async def generate_flashcards(input: SummaryInput):
     """
     Generate flashcards from the provided summary using Google Generative AI.
     Returns a list of flashcards in Question || Answer format.
     """
+    summary = input.summary  # Extract the summary from the input JSON
+
     if not summary:
         return {"error": "No summary provided to generate flashcards"}
 
@@ -71,7 +78,6 @@ async def generate_flashcards(summary: str = Form(...)):
     except Exception as e:
         return {"error": f"Error generating flashcards: {str(e)}"}
 
-
 # Health check endpoint
 @app.get("/health")
 async def health_check():
@@ -79,7 +85,6 @@ async def health_check():
     Health check endpoint to ensure the service is running properly.
     """
     return {"status": "ok", "message": "Flashcard generator is healthy"}
-
 
 # Root endpoint
 @app.get("/")
